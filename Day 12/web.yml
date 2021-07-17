@@ -1,6 +1,6 @@
 #create a file vim web.yml
   apiVersion: v1
-  kind: pod
+  kind: Pod
   metadata:
     name: webserver
   spec:
