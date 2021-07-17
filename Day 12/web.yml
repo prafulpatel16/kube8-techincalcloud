@@ -8,6 +8,6 @@
      - name: webserver
      - image: nginx
        ports:
-         - name:web
+         - name: web
          - containerPort: 80
          - protocol: TCP
