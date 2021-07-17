@@ -417,7 +417,101 @@ pod "webserver-2" deleted
 
 =====================================================================================================================================
 
-# POD creation and deletion by file metod 
+# POD creation and deletion by file method 
+
+
+#create a file vim web.yml
+  apiVersion: v1
+  kind: pod
+  metadata:
+    name: webserver
+  spec:
+    container:
+     - name: webserver
+     - image: nginx
+       ports:
+         - name:web
+         - containerPort: 80
+         - protocol: TCP
+         
+root@master-node-ubuntu:~# kubectl apply -f https://raw.githubusercontent.com/prafulpatel16/k
+ube8-techincalcloud/master/Day%2012/web.yml
+pod/static-web created         
+
+
+# How to get inside the Pod
+
+kubectl exec -it static-web /bin/bash 
+
+root@master-node-ubuntu:~# kubectl exec -it static-web /bin/bash
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [PO
+D] -- [COMMAND] instead.
+root@static-web:/# 
+
+root@static-web:/# ls
+bin   dev                  docker-entrypoint.sh  home  lib64  mnt  proc  run   srv  tmp  var
+boot  docker-entrypoint.d  etc                   lib   media  opt  root  sbin  sys  usr
+root@static-web:/# 
+
+#Describe pod and get the particular name from the pod and getinto the container
+
+oot@master-node-ubuntu:~# kubectl get pods
+NAME         READY   STATUS    RESTARTS   AGE
+static-web   1/1     Running   0          7m42s
+root@master-node-ubuntu:~# kubectl describe pod static-web
+Name:         static-web
+Namespace:    default
+Priority:     0
+Node:         node-2/10.128.0.4
+Start Time:   Sat, 17 Jul 2021 18:42:05 +0000
+Labels:       role=myrole
+Annotations:  <none>
+Status:       Running
+IP:           10.36.0.1
+IPs:
+  IP:  10.36.0.1
+Containers:
+  web:
+    Container ID:   docker://83041c0417eb3dc08a0f6d4e887ddad5162666c68deea2f5ee72fa7b9be3e818
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:353c20f74d9b6aee359f30e8e4f69c3d7eaea2f610681c4a95849
+a2fd7c497f9
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Sat, 17 Jul 2021 18:42:07 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4qkqn (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+
+# if there was more than one containers inside one pod then it can go insdie using -c option
+
+kubectl exec -it static-web -c web /bin/bash
+
+root@master-node-ubuntu:~# kubectl exec -it static-web -c web /bin/bash
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [PO
+D] -- [COMMAND] instead.
+root@static-web:/# ls
+bin   dev                  docker-entrypoint.sh  home  lib64  mnt  proc  run   srv  tmp  var
+boot  docker-entrypoint.d  etc                   lib   media  opt  root  sbin  sys  usr
+root@static-web:/# 
+
+
+
+
+
+
+
+
+#Create a file vim db.yml
 
 
 
