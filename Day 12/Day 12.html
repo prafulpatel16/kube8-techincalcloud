@@ -1,0 +1,431 @@
+How to Create a Pod through command and file
+
+Ref: https://kubernetes.io/docs/concepts/architecture/nodes/
+
+Kubernetes components:
+
+Ref: https://kubernetes.io/docs/concepts/overview/components/#node-components
+
+
+#Get nodes List
+root@master-node-ubuntu:~# kubectl get nodes
+NAME                 STATUS   ROLES                  AGE   VERSION
+master-node-ubuntu   Ready    control-plane,master   15h   v1.21.3
+node-1               Ready    <none>                 15h   v1.21.2
+node-2               Ready    <none>                 14h   v1.21.3
+
+#Get the nodes list with some details using < - o wide >
+  
+root@master-node-ubuntu:~# kubectl get nodes -o wide
+NAME                 STATUS   ROLES                  AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE
+             KERNEL-VERSION    CONTAINER-RUNTIME
+master-node-ubuntu   Ready    control-plane,master   15h   v1.21.3   10.128.0.9    <none>        Ubuntu 1
+6.04.7 LTS   4.15.0-1098-gcp   docker://18.6.2
+node-1               Ready    <none>                 15h   v1.21.2   10.128.0.3    <none>        Ubuntu 1
+8.04.5 LTS   5.4.0-1046-gcp    docker://18.6.2
+node-2               Ready    <none>                 14h   v1.21.3   10.128.0.4    <none>        Ubuntu 1
+8.04.5 LTS   5.4.0-1046-gcp    docker://18.6.2
+
+
+#Describe each nodes in more details using  <Describe>
+
+  root@master-node-ubuntu:~# kubectl describe node master-node-ubuntu
+  Name:               master-node-ubuntu
+  Roles:              control-plane,master
+  Labels:             beta.kubernetes.io/arch=amd64
+                      beta.kubernetes.io/os=linux
+                      kubernetes.io/arch=amd64
+                      kubernetes.io/hostname=master-node-ubuntu
+                      kubernetes.io/os=linux
+                      node-role.kubernetes.io/control-plane=
+                      node-role.kubernetes.io/master=
+                      node.kubernetes.io/exclude-from-external-load-balancers=
+  Annotations:        kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+                      node.alpha.kubernetes.io/ttl: 0
+                      volumes.kubernetes.io/controller-managed-attach-detach: true
+  CreationTimestamp:  Fri, 16 Jul 2021 03:15:34 +0000
+  Taints:             node-role.kubernetes.io/master:NoSchedule
+  Unschedulable:      false
+  Lease:
+    HolderIdentity:  master-node-ubuntu
+    AcquireTime:     <unset>
+    RenewTime:       Fri, 16 Jul 2021 19:15:10 +0000
+  Conditions:
+    Type                 Status  LastHeartbeatTime                 LastTransitionTime                Reason
+                         Message
+    ----                 ------  -----------------                 ------------------                ------
+                         -------
+    NetworkUnavailable   False   Fri, 16 Jul 2021 19:07:52 +0000   Fri, 16 Jul 2021 19:07:52 +0000   WeaveI
+  sUp                    Weave pod has set this
+    MemoryPressure       False   Fri, 16 Jul 2021 19:12:41 +0000   Fri, 16 Jul 2021 03:15:31 +0000   Kubele
+  tHasSufficientMemory   kubelet has sufficient memory available
+    DiskPressure         False   Fri, 16 Jul 2021 19:12:41 +0000   Fri, 16 Jul 2021 03:15:31 +0000   Kubele
+  tHasNoDiskPressure     kubelet has no disk pressure
+    PIDPressure          False   Fri, 16 Jul 2021 19:12:41 +0000   Fri, 16 Jul 2021 03:15:31 +0000   Kubele
+  tHasSufficientPID      kubelet has sufficient PID available
+    Ready                True    Fri, 16 Jul 2021 19:12:41 +0000   Fri, 16 Jul 2021 03:26:30 +0000   Kubele
+  tReady                 kubelet is posting ready status. AppArmor enabled
+  Addresses:
+    InternalIP:  10.128.0.9
+    Hostname:    master-node-ubuntu
+  Capacity:
+    cpu:                2
+    ephemeral-storage:  9983268Ki
+    hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             4038480Ki
+  pods:               110
+Allocatable:
+  cpu:                2
+  ephemeral-storage:  9200579774
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             3936080Ki
+  pods:               110
+System Info:
+  Machine ID:                 1929c4fc0ccae1e48739eff5b898bfde
+  System UUID:                1929C4FC-0CCA-E1E4-8739-EFF5B898BFDE
+  Boot ID:                    4a89bfa0-495a-4b54-966a-211a595d173f
+  Kernel Version:             4.15.0-1098-gcp
+  OS Image:                   Ubuntu 16.04.7 LTS
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  docker://18.6.2
+  Kubelet Version:            v1.21.3
+  Kube-Proxy Version:         v1.21.3
+PodCIDR:                      192.168.0.0/24
+PodCIDRs:                     192.168.0.0/24
+Non-terminated Pods:          (8 in total)
+  Namespace                   Name                                          CPU Requests  CPU Limits  Mem
+ory Requests  Memory Limits  Age
+  ---------                   ----                                          ------------  ----------  ---
+------------  -------------  ---
+  kube-system                 coredns-558bd4d5db-dcd4j                      100m (5%)     0 (0%)      70M
+i (1%)        170Mi (4%)     15h
+  kube-system                 coredns-558bd4d5db-gkpng                      100m (5%)     0 (0%)      70M
+i (1%)        170Mi (4%)     15h
+  kube-system                 etcd-master-node-ubuntu                       100m (5%)     0 (0%)      100
+Mi (2%)       0 (0%)         15h
+  kube-system                 kube-apiserver-master-node-ubuntu             250m (12%)    0 (0%)      0 (
+0%)           0 (0%)         15h
+  kube-system                 kube-controller-manager-master-node-ubuntu    200m (10%)    0 (0%)      0 (
+0%)           0 (0%)         15h
+  kube-system                 kube-proxy-8jp9n                              0 (0%)        0 (0%)      0 (
+0%)           0 (0%)         15h
+  kube-system                 kube-scheduler-master-node-ubuntu             100m (5%)     0 (0%)      0 (
+0%)           0 (0%)         15h
+  kube-system                 weave-net-xmhsv                               100m (5%)     0 (0%)      200
+Mi (5%)       0 (0%)         15h
+llocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests     Limits
+  --------           --------     ------
+  cpu                950m (47%)   0 (0%)
+  memory             440Mi (11%)  340Mi (8%)
+  ephemeral-storage  0 (0%)       0 (0%)
+  hugepages-1Gi      0 (0%)       0 (0%)
+  hugepages-2Mi      0 (0%)       0 (0%)
+Events:
+  Type    Reason                   Age                  From        Message
+  ----    ------                   ----                 ----        -------
+  Normal  Starting                 8m9s                 kubelet     Starting kubelet.
+  Normal  NodeHasSufficientMemory  8m8s (x8 over 8m9s)  kubelet     Node master-node-ubuntu status is now
+: NodeHasSufficientMemory
+  Normal  NodeHasNoDiskPressure    8m8s (x8 over 8m9s)  kubelet     Node master-node-ubuntu status is now
+: NodeHasNoDiskPressure
+  Normal  NodeHasSufficientPID     8m8s (x7 over 8m9s)  kubelet     Node master-node-ubuntu status is now
+: NodeHasSufficientPID
+  Normal  NodeAllocatableEnforced  8m8s                 kubelet     Updated Node Allocatable limit across
+ pods
+  Normal  Starting                 7m29s                kube-proxy  Starting kube-proxy.
+
+
+
+
+===============================================================================================================================
+
+
+#Create pod using commands:
+
+#Create a webserver pod from command
+root@master-node-ubuntu:~# kubectl run webserver-1 --image=nginx
+pod/webserver-1 created
+
+#Observer the status of container
+root@master-node-ubuntu:~# kubectl get pods
+NAME          READY   STATUS              RESTARTS   AGE
+webserver-1   1/1     Running             0          2m19s
+webserver-2   0/1     ContainerCreating   0          8s
+
+
+#Describe pods in details
+
+kubectl describe pod 
+root@master-node-ubuntu:~# kubectl describe pod webserver-1
+Name:         webserver-1
+Namespace:    default
+Priority:     0
+Node:         node-2/10.128.0.4
+Start Time:   Fri, 16 Jul 2021 19:53:12 +0000
+Labels:       run=webserver-1
+Annotations:  <none>
+Status:       Running
+IP:           10.36.0.1
+IPs:
+  IP:  10.36.0.1
+Containers:
+  webserver-1:
+    Container ID:   docker://e6fca639baa9c503cffb8f71c10add473b66715dace8511cf3b3ed629dac3ec6
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:353c20f74d9b6aee359f30e8e4f69c3d7eaea2f610681c4a95849a2fd7c4
+97f9
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 16 Jul 2021 19:53:18 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-ggzbz (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  kube-api-access-ggzbz:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  10m   default-scheduler  Successfully assigned default/webserver-1 to node-2
+  Normal  Pulling    10m   kubelet            Pulling image "nginx"
+  Normal  Pulled     10m   kubelet            Successfully pulled image "nginx" in 4.039688252s
+  Normal  Created    10m   kubelet            Created container webserver-1
+  Normal  Started    10m   kubelet            Started container webserver-1
+
+
+# Check docker on worker node which is created from pod
+take a contianer id from describe pod and go to node and apply docker ps -a command
+
+So when nginx container is created inside pod at the same time pause contianer created which stored all the container configurations
+Containers:
+  webserver-1:
+    Container ID:   docker://e6fca639baa9c503cffb8f71c10add473b66715dace8511cf3b3ed629dac3ec6
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:353c20f74d9b6aee359f30e8e4f69c3d7eaea2f610681c4a95849a2fd7c4
+97f9
+
+root@node-2:~# docker ps -a
+CONTAINER ID        IMAGE                    COMMAND                  CREATED      
+       STATUS                         PORTS               NAMES
+e6fca639baa9        nginx                    "/docker-entrypoint.…"   37 minutes ag
+o      Up 37 minutes                                      k8s_webserver-1_webserver
+-1_default_ba18df15-eb96-4cca-991c-6c51ad6a54c3_0
+8cdbd45a59ea        k8s.gcr.io/pause:3.4.1   "/pause"                 37 minutes ag
+o      Up 37 minutes                                      k8s_POD_webserver-1_defau
+lt_ba18df15-eb96-4cca-991c-6c51ad6a54c3_0
+
+#Create data server Pod
+
+root@master-node-ubuntu:~# kubectl run dataserver-1 --image=redis
+pod/dataserver-1 created
+
+root@master-node-ubuntu:~# kubectl run dataserver-2 --image=mysql
+pod/dataserver-2 created
+
+get all pods List
+
+root@master-node-ubuntu:~# kubectl get pods
+NAME           READY   STATUS              RESTARTS   AGE
+dataserver-1   0/1     ContainerCreating   0          109s
+dataserver-2   0/1     Error               2          35s
+webserver-1    1/1     Running             0          47m
+webserver-2    0/1     ContainerCreating   0          45m
+
+#describe database Pod
+Name:         dataserver-1
+Namespace:    default
+Priority:     0
+Node:         node-1/10.128.0.3
+Start Time:   Fri, 16 Jul 2021 20:39:03 +0000
+Labels:       run=dataserver-1
+Annotations:  <none>
+Status:       Pending
+IP:           
+IPs:          <none>
+Containers:
+  dataserver-1:
+    Container ID:   
+    Image:          redis
+    Image ID:       
+    Port:           <none>
+    Host Port:      <none>
+    State:          Waiting
+      Reason:       ContainerCreating
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pk7w6 (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             False 
+  ContainersReady   False 
+  PodScheduled      True 
+Volumes:kube-api-access-pk7w6:
+Type:                    Projected (a volume that contains injected data from multiple sources)
+TokenExpirationSeconds:  3607
+ConfigMapName:           kube-root-ca.crt
+ConfigMapOptional:       <nil>
+DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                         node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+Type     Reason                  Age                     From               Message
+----     ------                  ----                    ----               -------
+Normal   Scheduled               2m57s                   default-scheduler  Successfully assigned default/dataserver-1 to node-1
+Warning  FailedCreatePodSandBox  2m55s                   kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to set up sandbox co
+ntainer "2354299517d5b4e0a153d32d7b6ff05c8e71c3bdd0af09cad78c321d7f0f9346" network for pod "dataserver-1": networkPlugin cni failed to set up pod "dataserver-1_default"
+network: failed to Statfs "/proc/25658/ns/net": no such file or directory
+Warning  FailedCreatePodSandBox  2m53s                   kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to set up sandbox co
+ntainer "34c36680a1bde4368a5a77ddfc4643de9db1af914c60526f61457057205896f0" network for pod "dataserver-1": networkPlugin cni failed to set up pod "dataserver-1_default"
+network: failed to Statfs "/proc/25903/ns/net": no such file or directory
+Warning  FailedCreatePodSandBox  2m49s                   kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to set up sandbox co
+ntainer "47fb5aa7073570bd6217e0626a074eebe09a5fe2ef52c07faaf0cb51ab21fcd4" network for pod "dataserver-1": networkPlugin cni failed to set up pod "dataserver-1_default"
+network: CNI failed to retrieve network namespace path: cannot find network namespace for the terminated container "47fb5aa7073570bd6217e0626a074eebe09a5fe2ef52c07faaf
+0cb51ab21fcd4"
+Warning  FailedCreatePodSandBox  2m46s                   kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to set up sandbox co
+ntainer "0cecd9b64d2bf64f70a88e25655748d63877c77f8a0366d0ff35bbaa60b9318b" network for pod "dataserver-1": networkPlugin cni failed to set up pod "dataserver-1_default"
+network: CNI failed to retrieve network namespace path: cannot find network namespace for the terminated container "0cecd9b64d2bf64f70a88e25655748d63877c77f8a0366d0ff3
+5bbaa60b9318b"
+Warning  FailedCreatePodSandBox  2m41s                   kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to set up sandbox co
+ntainer "e94eda41849d64adfc60c5dcd253bb18f3428d5890609de1ea237c768819053e" network for pod "dataserver-1": networkPlugin cni failed to set up pod "dataserver-1_default"
+network: CNI failed to retrieve network namespace path: cannot find network namespace for the terminated container "e94eda41849d64adfc60c5dcd253bb18f3428d5890609de1ea2
+37c768819053e"
+Warning  FailedSync              2m40s                   kubelet            error determining status: rpc error: code = Unknown desc = Error: No such container: 47fb5
+aa7073570bd6217e0626a074eebe09a5fe2ef52c07faaf0cb51ab21fcd4
+Warning  FailedCreatePodSandBox  2m36s                   kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to set up sandbox co
+ntainer "7f055d602624a8a53d7e7e49fad2d626ad8b967ca07aeba448bb65f6990728eb" network for pod "dataserver-1": networkPlugin cni failed to set up pod "dataserver-1_default"
+network: CNI failed to retrieve network namespace path: cannot find network namespace for the terminated container "7f055d602624a8a53d7e7e49fad2d626ad8b967ca07aeba448b
+b65f6990728eb"
+Warning  FailedCreatePodSandBox  2m31s                   kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to set up sandbox co
+ntainer "a780ac947c86e33165945b900b7f25f8819fda8415f3e970fe9c7ab9f642eeba" network for pod "dataserver-1": networkPlugin cni failed to set up pod "dataserver-1_default"
+network: CNI failed to retrieve network namespace path: cannot find network namespace for the terminated container "a780ac947c86e33165945b900b7f25f8819fda8415f3e970fe9
+c7ab9f642eeba"
+Warning  FailedCreatePodSandBox  2m28s                   kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to set up sandbox co
+
+#Check status of all pods on what node its runnung
+
+root@master-node-ubuntu:~# kubectl get pods -o wide
+NAME           READY   STATUS              RESTARTS   AGE     IP          NODE     NOMINATED NODE   READINESS GATES
+dataserver-1   0/1     ContainerCreating   0          4m35s   <none>      node-1   <none>           <none>
+dataserver-2   1/1     Running             5          3m21s   10.36.0.2   node-2   <none>           <none>
+webserver-1    1/1     Running             0          50m     10.36.0.1   node-2   <none>           <none>
+webserver-2    0/1     ContainerCreating   0          48m     <none>      node-1   <none>           <none>
+
+#Control plane node isolation
+
+# Run pods on master nodes
+By default, your cluster will not schedule Pods on the control-plane node for security reasons. If you want to be able to schedule Pods on the control-plane node, for example for a single-machine Kubernetes cluster for development, run:
+
+default pods cannot run on master node - reason master node has taint off status which need to make True - No Shceduling
+
+Name:               master-node-ubuntu
+Roles:              control-plane,master
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=master-node-ubuntu
+                    kubernetes.io/os=linux
+                    node-role.kubernetes.io/control-plane=
+                    node-role.kubernetes.io/master=
+                    node.kubernetes.io/exclude-from-external-load-balancers=
+Annotations:        kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Fri, 16 Jul 2021 03:15:34 +0000
+Taints:             node-role.kubernetes.io/master:NoSchedule
+
+apply below command on master node
+kubectl taint nodes --all node-role.kubernetes.io/master-
+
+root@master-node-ubuntu:~# kubectl taint nodes --all node-role.kubernetes.io/master-
+node/master-node-ubuntu untainted
+taint "node-role.kubernetes.io/master" not found
+taint "node-role.kubernetes.io/master" not found
+
+Describe master node and verify that is taint is none tHasNoDiskPressure
+
+root@master-node-ubuntu:~# kubectl describe node master-node-ubuntu
+Name:               master-node-ubuntu
+Roles:              control-plane,master
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=master-node-ubuntu
+                    kubernetes.io/os=linux
+                    node-role.kubernetes.io/control-plane=
+                    node-role.kubernetes.io/master=
+                    node.kubernetes.io/exclude-from-external-load-balancers=
+Annotations:        kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Fri, 16 Jul 2021 03:15:34 +0000
+Taints:             <none>
+
+
+  root@master-node-ubuntu:~# kubectl run dev-server1 --image=nginx
+  pod/dev-server1 created
+  root@master-node-ubuntu:~# kubectl run dev-server2 --image=nginx
+  pod/dev-server2 created
+  
+  root@master-node-ubuntu:~# kubectl get pods -o wide
+NAME           READY   STATUS              RESTARTS   AGE   IP          NODE     NOMINATED NODE   READINESS GATES
+dataserver-1   0/1     ContainerCreating   0          17m   <none>      node-1   <none>           <none>
+dataserver-2   0/1     CrashLoopBackOff    7          15m   10.36.0.2   node-2   <none>           <none>
+dev-server1    1/1     Running             0          82s   10.36.0.3   node-2   <none>           <none>
+dev-server2    0/1     ContainerCreating   0          74s   <none>      node-1   <none>           <none>
+webserver-1    1/1     Running             0          63m   10.36.0.1   node-2   <none>           <none>
+webserver-2    0/1     ContainerCreating   0          60m   <none>      node-1   <none>           <none>
+
+#Delete single pod by <command>
+  root@master-node-ubuntu:~# kubectl delete pod webserver-1
+  pod "webserver-1" deleted
+  
+#Delete all pods at once
+
+root@master-node-ubuntu:~# kubectl delete pod --all
+pod "dataserver-1" deleted
+pod "dataserver-2" deleted
+pod "dev-server1" deleted
+pod "dev-server2" deleted
+pod "webserver-2" deleted
+
+=====================================================================================================================================
+
+# POD creation and deletion by file metod 
+
+
+
+
+
+
+
+
+
+
+
