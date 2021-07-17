@@ -1,13 +1,15 @@
 #create a file vim web.yml
-  apiVersion: v1
-  kind: Pod
-  metadata:
-    name: webserver
-  spec:
-    container:
-     - name: webserver
-     - image: nginx
-       ports:
-         - name: web
-         - containerPort: 80
-         - protocol: TCP
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-web
+  labels:
+    role: myrole
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
