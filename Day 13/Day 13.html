@@ -1,0 +1,257 @@
+kubernets replication types
+
+https://www.mirantis.com/blog/kubernetes-replication-controller-replica-set-and-deployments-understanding-replication-options/
+
+Kubernetes Replication Controller, Replica Set and Deployments
+
+replication control manager cannot replicate for multiple labels.however it can support for rolling update if application does have different 
+application version updates.
+
+Check before deploying rc if any pod or rc is exists.
+
+kubectl get pods
+
+kubetl get rc
+
+
+root@master-node-ubuntu:~# kubectl get pods
+No resources found in default namespace.
+root@master-node-ubuntu:~# kubectl get rc
+No resources found in default namespace.
+root@master-node-ubuntu:~# 
+
+Apply watch command in second window and observe the replication controller desployments
+watch kubectl get pods,rc
+
+# Deploy </replication_controller.yml> 
+
+kubectl apply -f https://raw.githubusercontent.com/prafulpatel16/kube8-techincalcloud/master/Day%2013/replication_controller.yml
+
+root@master-node-ubuntu:~# kubectl apply -f https://raw.githubusercontent.com/praful
+patel16/kube8-techincalcloud/master/Day%2013/replication_controller.yml
+replicationcontroller/prafulcloud created
+
+
+NAME                    READY   STATUS              RESTARTS   AGE
+pod/prafulcloud-d4gvt   1/1     Running             0          89s
+pod/prafulcloud-pwz7l   1/1     Running             0          89s
+pod/prafulcloud-tq65p   0/1     ContainerCreating   0          89s
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicationcontroller/prafulcloud   3         3         2       89s
+
+
+watch the replication controller by labels
+
+watch kubectl get pods,rc --show-labels
+
+NAME                    READY   STATUS              RESTARTS   AGE     LABELS
+pod/prafulcloud-d4gvt   1/1     Running             0          6m10s   team=dev
+pod/prafulcloud-pwz7l   1/1     Running             0          6m10s   team=dev
+pod/prafulcloud-tq65p   0/1     ContainerCreating   0          6m10s   team=dev
+
+NAME                                DESIRED   CURRENT   READY   AGE     LABELS
+replicationcontroller/prafulcloud   3         3         2       6m10s   team=dev
+
+# Delete one of the pod and observe the conroller will automtically deploy antother one in order to make the capacity DESIRED
+
+copy one of the pod id from the pods list
+
+kubectl delete pod prafulcloud-tq65p 
+
+root@master-node-ubuntu:~# kubectl delete pod prafulcloud-tq65p 
+pod "prafulcloud-tq65p" deleted
+
+
+NAME                    READY   STATUS    RESTARTS   AGE   LABELS
+pod/prafulcloud-5r7pq   1/1     Running   0          11s   team=dev
+pod/prafulcloud-d4gvt   1/1     Running   0          10m   team=dev
+pod/prafulcloud-pwz7l   1/1     Running   0          10m   team=dev
+NAME                                DESIRED   CURRENT   READY   AGE   LABELS
+replicationcontroller/prafulcloud   3         3         3       10m   team=dev
+
+
+NAME                    READY   STATUS              RESTARTS   AGE   LABELS
+pod/prafulcloud-5r7pq   1/1     Running             0          2m    team=dev
+pod/prafulcloud-d4gvt   1/1     Running             0          12m   team=dev
+pod/prafulcloud-pwz7l   0/1     Terminating         0          12m   team=dev
+pod/prafulcloud-z4gfk   0/1     ContainerCreating   0          7s    team=dev
+
+NAME                                DESIRED   CURRENT   READY   AGE   LABELS
+replicationcontroller/prafulcloud   3         3         2       12m   team=dev
+
+
+#Describe pod and observe the field <Controlled by> replication cntroller 
+    Controlled By:  ReplicationController/prafulcloud
+
+
+
+    root@master-node-ubuntu:~# kubectl describe pod prafulcloud-zb6ll 
+    Name:         prafulcloud-zb6ll
+    Namespace:    default
+    Priority:     0
+    Node:         node-2/10.128.0.4
+    Start Time:   Mon, 19 Jul 2021 00:54:42 +0000
+    Labels:       team=dev
+    Annotations:  <none>
+    Status:       Running
+    IP:           10.36.0.2
+    IPs:
+      IP:           10.36.0.2
+    Controlled By:  ReplicationController/prafulcloud
+    Containers:
+      prafulcloud:
+        Container ID:   docker://57100c3d4227710febd2b087425927f3879121895fda3c0481356ae97e204e2f
+        Image:          nginx:1.7.1
+        Image ID:       docker-pullable://nginx@sha256:7fbe0579e123f3d2b29c9159e9a80547fb72621bb419e52d98c679ddbf1055a1
+        Port:           80/TCP
+        Host Port:      0/TCP
+        State:          Running
+          Started:      Mon, 19 Jul 2021 00:54:44 +0000
+        Ready:          True
+        Restart Count:  0
+        Environment:    <none>
+        Mounts:
+          /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-b7qpr (ro)
+    Conditions:
+      Type              Status
+      Initialized       True 
+      Ready             True 
+
+#Describe replication controller by it's Name
+
+kubectl describe rc prafulcloud
+
+root@master-node-ubuntu:~# kubectl describe rc prafulcloud
+Name:         prafulcloud
+Namespace:    default
+Selector:     team=dev
+Labels:       team=dev
+Annotations:  <none>
+Replicas:     3 current / 3 desired
+Pods Status:  3 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  team=dev
+  Containers:
+   prafulcloud:
+    Image:        nginx:1.7.1
+    Port:         80/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Events:
+  Type    Reason            Age    From                    Message
+  ----    ------            ----   ----                    -------
+  Normal  SuccessfulCreate  18m    replication-controller  Created pod: prafulcloud-tq65p
+  Normal  SuccessfulCreate  18m    replication-controller  Created pod: prafulcloud-d4gvt
+  Normal  SuccessfulCreate  18m    replication-controller  Created pod: prafulcloud-pwz7l
+  Normal  SuccessfulCreate  8m9s   replication-controller  Created pod: prafulcloud-5r7pq
+  Normal  SuccessfulCreate  6m16s  replication-controller  Created pod: prafulcloud-z4gfk
+  Normal  SuccessfulCreate  5m12s  replication-controller  Created pod: prafulcloud-zb6ll
+
+
+
+
+Delete replication controller
+
+kubectl delete -f https://raw.githubusercontent.com/prafulpatel16/kube8-techincalcloud/master/Day%2013/replication_controller.yml
+
+replicationcontroller "prafulcloud" deleted
+
+
+
+# Delete the label from Pod
+
+create pod with label web
+
+kubectl run web --image=nginx
+root@master-node-ubuntu:~# kubectl run web --image=nginx
+pod/web created
+
+Delete the lable web
+root@master-node-ubuntu:~# kubectl label pod web run-
+pod/web labeled
+
+verify the pod has no any label
+root@master-node-ubuntu:~# kubectl get pods --show-labels
+NAME   READY   STATUS    RESTARTS   AGE     LABELS
+web    1/1     Running   0          3m58s   <none>
+
+#assign lable to Pod
+
+kubectl lable pod web team=dev
+
+root@master-node-ubuntu:~# kubectl label pod web team=dev
+pod/web labeled
+root@master-node-ubuntu:~# 
+
+VErify that dev label is applied
+NAME   READY   STATUS    RESTARTS   AGE     LABELS
+web    1/1     Running   0          5m48s   team=dev
+
+
+
+if any pod is running with some label which doesn't have any controller exists then whenever any new replication controller is 
+deployed it will aquired that pod and it will not deploy total count of that replicas.
+
+Controllers are completely depends on the provided labels
+
+one pod with the lable dev is already running, so if we run new pods using replication controller it will run and acquired the one
+from already running as it has label dev applied
+
+root@master-node-ubuntu:~# kubectl apply -rf https://raw.githubusercontent.com/praful
+patel16/kube8-techincalcloud/master/Day%2013/replication_controller.yml
+replicationcontroller/prafulcloud created
+
+
+AME                    READY   STATUS    RESTARTS   AGE     LABELS
+pod/prafulcloud-56rrk   1/1     Running   0          20s     team=dev
+pod/prafulcloud-zfv54   1/1     Running   0          20s     team=dev
+pod/web                 1/1     Running   0          9m53s   team=dev
+
+NAME                                DESIRED   CURRENT   READY   AGE   LABELS
+replicationcontroller/prafulcloud   3         3         3       20s   team=dev
+
+if need to troubleshoot the pod it can be get that pod out of the replication controller by removing the label name  
+
+root@master-node-ubuntu:~# kubectl label pod web team-
+pod/web labeled
+
+NAME                    READY   STATUS              RESTARTS   AGE     LABELS
+pod/prafulcloud-56rrk   1/1     Running             0          70m     team=dev
+pod/prafulcloud-wj4qb   0/1     ContainerCreating   0          2m48s   team=dev
+pod/prafulcloud-zfv54   1/1     Running             0          70m     team=dev
+pod/web                 1/1     Running             0          80m     <none>
+
+NAME                                DESIRED   CURRENT   READY   AGE   LABELS
+replicationcontroller/prafulcloud   3         3         2       70m   team=dev
+
+
+#Delete just replication controller, not the pods if in case need to transfer these pods to another replication controller
+
+kubectl delete rc --cascade=false prafulcloud
+
+
+root@master-node-ubuntu:~# kubectl delete rc --cascade=false prafulcloud
+warning: --cascade=false is deprecated (boolean value) and can be replaced with --cascade
+=orphan.
+replicationcontroller "prafulcloud" deleted
+root@master-node-ubuntu:~# 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
