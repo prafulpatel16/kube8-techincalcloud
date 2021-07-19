@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: prafulcloud
+spec:
+  replicas: 3
+  selector:
+    team: dev
+  template:
+    metadata:
+      name: prafulcloud
+      labels:
+        team: dev
+    spec:
+      containers:
+        - name: prafulcloud
+          image: nginx:1.7.1
+          ports:
+            - containerPort: 80
