@@ -12,13 +12,13 @@ spec:
           - dev
           - prod
           - test
-    template:
+  template:
       metadata:
         name: prafulcloud
         labels:
           team: dev
-    spec:
-      containers:
+      spec:
+        containers:
         - name: prafulcloud
           image: nginx:1.9.1
           ports:
