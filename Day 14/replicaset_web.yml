@@ -3,7 +3,6 @@ kind: ReplicaSet
 metadata:
   name: prafulcloud
 spec:
-  # modify replicas according to your case
   replicas: 3
   selector:
     matchExpressions:
@@ -22,4 +21,4 @@ spec:
       containers:
       - name: prafulcloud
         image: nginx:1.9.1
-        ports: 80
+      
