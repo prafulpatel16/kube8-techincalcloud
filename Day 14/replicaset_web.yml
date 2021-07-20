@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: prafulcloud
+spec:
+  # modify replicas according to your case
+  replicas: 3
+  selector:
+    matchExpressions:
+      - key: team
+        operator: In
+        values:
+          - dev
+          - prod
+          - test 
+  template:
+    metadata:
+       name: dev
+       labels:
+         team: dev
+    spec:
+      containers:
+      - name: prafulcloud
+        image: nginx:1.9.1
+        ports: 80
