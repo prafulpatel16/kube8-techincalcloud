@@ -12,12 +12,11 @@ spec:
           - dev
           - prod
           - test
-    team: dev
-  template:
-    metadata:
-      name: prafulcloud
-      labels:
-        team: dev
+    template:
+      metadata:
+        name: prafulcloud
+        labels:
+          team: dev
     spec:
       containers:
         - name: prafulcloud

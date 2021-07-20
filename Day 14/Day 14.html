@@ -1,0 +1,89 @@
+#replicaset Deployments
+
+In replicaset it can create multiple labels pods at the same time which is not in replication-controller
+
+Replicaset does not support rolling update which is disadvantage which resolves by the Deployments
+
+root@master-node-ubuntu:~# kubectl get pod --show-labels
+NAME                READY   STATUS    RESTARTS   AGE    LABELS
+prafulcloud-692hb   1/1     Running   0          105s   team=dev
+prafulcloud-6cl25   1/1     Running   0          105s   team=dev
+prafulcloud-dxgfk   1/1     Running   0          105s   team=dev
+
+Above pods are running from replication controller yaml, now we have to deploy with replicaset
+and in replicaset it can be defined multiple labels and system will acquire all the pods which matches the pods defined in 'matchexpressions
+section' like -dev, -prod, -test
+
+
+Create a two new pod with label dev and prod
+
+kubectl run dev --image=nginx 
+
+kubectl run prod --image=nginx
+
+root@master-node-ubuntu:~# kubectl get pod --show-labels
+NAME   READY   STATUS              RESTARTS   AGE    LABELS
+dev    0/1     ContainerCreating   0          114s   run=dev
+prod   0/1     ContainerCreating   0          100s   run=prod
+
+remove the default lable run-
+
+root@master-node-ubuntu:~# kubectl label pod dev run-
+pod/dev labeled
+root@master-node-ubuntu:~# kubectl label pod prod run-
+pod/prod labeled
+
+Now labels are set to None
+root@master-node-ubuntu:~# kubectl get pod --show-labels
+NAME   READY   STATUS              RESTARTS   AGE     LABELS
+dev    0/1     ContainerCreating   0          5m29s   <none>
+prod   0/1     ContainerCreating   0          5m15s   <none>
+
+Now assign new labels 
+
+oot@master-node-ubuntu:~# kubectl label pod dev team=dev
+pod/dev labeled
+root@master-node-ubuntu:~# kubectl label pod prod team=prod
+pod/prod labeled
+root@master-node-ubuntu:~# kubectl get pods --show-labels
+NAME   READY   STATUS              RESTARTS   AGE     LABELS
+dev    0/1     ContainerCreating   0          7m23s   team=dev
+prod   0/1     ContainerCreating   0          7m9s    team=prod
+
+Now deploy replicaset and see if there are any pod with the name dev and prod and test is exists and they are no member of any other
+replicaset then it will acquire those pods and will not create new pods from the desired replicas capacity.
+
+now lets deploy replicaset and see it will only create 2 new pods since there are already one dev pod is exist in the system
+
+piVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: prafulcloud
+spec:
+  replicas: 3
+  selector:
+    matchExpressions:
+      - key: team
+        operator: In
+        values:
+          - dev
+          - prod
+          - test
+    team: dev
+  template:
+    metadata:
+      name: prafulcloud
+      labels:
+        team: dev
+    spec:
+      containers:
+        - name: prafulcloud
+          image: nginx:1.9.1
+          ports:
+            - containerPort: 80
+
+when deploy this ReplicaSet it will create 2 new dev and 2 new prod 
+
+
+
+
