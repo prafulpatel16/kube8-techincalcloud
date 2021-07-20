@@ -11,14 +11,16 @@ spec:
         values:
           - dev
           - prod
-          - test 
+          - test
+    team: dev
   template:
     metadata:
-       name: dev
-       labels:
-         team: dev
+      name: prafulcloud
+      labels:
+        team: dev
     spec:
       containers:
-      - name: prafulcloud
-        image: nginx:1.9.1
-      
+        - name: prafulcloud
+          image: nginx:1.9.1
+          ports:
+            - containerPort: 80
