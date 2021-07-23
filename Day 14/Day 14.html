@@ -41,7 +41,7 @@ prod   0/1     ContainerCreating   0          5m15s   <none>
 
 Now assign new labels 
 
-oot@master-node-ubuntu:~# kubectl label pod dev team=dev
+root@master-node-ubuntu:~# kubectl label pod dev team=dev
 pod/dev labeled
 root@master-node-ubuntu:~# kubectl label pod prod team=prod
 pod/prod labeled
@@ -55,7 +55,7 @@ replicaset then it will acquire those pods and will not create new pods from the
 
 now lets deploy replicaset and see it will only create 2 new pods since there are already one dev pod is exist in the system
 
-piVersion: apps/v1
+apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
   name: prafulcloud
@@ -83,6 +83,67 @@ spec:
             - containerPort: 80
 
 when deploy this ReplicaSet it will create 2 new dev and 2 new prod 
+
+NAME                    READY   STATUS    RESTARTS   AGE     LABELS
+pod/dev                 1/1     Running   0          3m13s   team=dev
+pod/prafulcloud-t9f6j   1/1     Running   0          50s     team=dev
+pod/prod                1/1     Running   0          3m1s    team=prod
+NAME                          DESIRED   CURRENT   READY   AGE   LABELS
+replicaset.apps/prafulcloud   3         3         3       50s   <none>
+
+- Replicaset feature Operator: NotIn 
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: prafulcloud
+spec:
+  replicas: 3
+  selector:
+    matchExpressions:
+      - key: team
+        operator: In
+        values:
+          - dev
+          - prod
+          - test
+      - key: team
+        operator: NotIn
+        values:
+          - test
+  template:
+      metadata:
+        name: prafulcloud
+        labels:
+          team: dev
+      spec:
+        containers:
+        - name: prafulcloud
+          image: nginx:1.9.1
+          ports:
+            - containerPort: 80
+
+
+-Create 3 pods to prove the NotIn 
+
+kubectl run dev --image=nginx
+
+kubectl run prod --image=nginx
+
+kubectl run test --image=nginx
+
+NAME       READY   STATUS    RESTARTS   AGE   LABELS
+pod/dev    1/1     Running   0          35s   run=dev
+pod/prod   1/1     Running   0          25s   run=prod
+pod/test   1/1     Running   0          11s   run=test
+
+
+Chnage the labels to team=dev, team=prod, team=test
+
+NAME       READY   STATUS    RESTARTS   AGE     LABELS
+pod/dev    1/1     Running   0          2m42s   team=dev
+pod/prod   1/1     Running   0          2m32s   team=prod
+pod/test   1/1     Running   0          2m18s   team=test
 
 
 
