@@ -12,7 +12,7 @@ spec:
   template:
       metadata:
         labels:
-          team: nginx
+          app: nginx
       spec:
         containers:
         - name: nginx
