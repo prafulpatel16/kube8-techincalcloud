@@ -146,5 +146,112 @@ pod/prod   1/1     Running   0          2m32s   team=prod
 pod/test   1/1     Running   0          2m18s   team=test
 
 
+Now lets deploy the replicaset and check it will not acquire the pod which labels team=test because its in the operator NotIN 
+
+kubectl apply -f https://raw.githubusercontent.com/prafulpatel16/kube8-techincalcloud/master/Day%2014/replicaset_web_operator_NotIn.yml
+
+NAME                    READY   STATUS    RESTARTS   AGE     LABELS
+pod/dev                 1/1     Running   0          9m17s   team=dev
+pod/prafulcloud-clwq7   1/1     Running   0          56s     team=dev
+pod/prod                1/1     Running   0          9m7s    team=prod
+pod/test                1/1     Running   0          8m53s   team=test
+NAME                          DESIRED   CURRENT   READY   AGE   LABELS
+replicaset.apps/prafulcloud   3         3         3       57s   <none>
+
+
+-Now validate the dev and prod pod is acquired by the replicaset 
+check the value of the field in the describe pod
+Controlled By:  ReplicaSet/prafulcloud
+
+root@master-node-ubnt:~# kubectl describe pod dev
+Name:         dev
+Namespace:    default
+Priority:     0
+Node:         node-2/10.128.0.14
+Start Time:   Fri, 23 Jul 2021 17:57:35 +0000
+Labels:       team=dev
+Annotations:  <none>
+Status:       Running
+IP:           10.36.0.1
+IPs:
+  IP:           10.36.0.1
+Controlled By:  ReplicaSet/prafulcloud
+Containers:
+  dev:
+    Container ID:   docker://821c6ce1d013ccd2e102bdaaa13f503e6853596073e66e097a241f9f31c2fdd5
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:8f335768880da6baf72b70c701002b45f4932acae8d574dedfddaf9
+67fc3ac90
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 23 Jul 2021 17:57:37 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-rvk52 (ro)
+
+
+      -Now validate the test pod is NOT acquired by the replicaset 
+      check the value of the field in the describe pod
+      Controlled By: 
+
+root@master-node-ubnt:~# kubectl describe pod test
+Name:         test
+Namespace:    default
+Priority:     0
+Node:         node-1/10.128.0.13
+Start Time:   Fri, 23 Jul 2021 17:57:59 +0000
+Labels:       team=test
+Annotations:  <none>
+Status:       Running
+IP:           10.44.0.2
+IPs:
+  IP:  10.44.0.2
+Containers:
+  test:
+    Container ID:   docker://f35393302cf2fe1dadbc3362c8ceb699f2bae3d8afde1afb752770e3b1ceed70
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:8f335768880da6baf72b70c701002b45f4932acae8d574dedfddaf9
+67fc3ac90
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 23 Jul 2021 17:58:01 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zm6vj (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+
+- Now if you delete the replicaset then all the other pods will be deleted which are members of the replicaset but it cannot delete the pods
+which are not the member of the pod like team=test pod here.
+
+NAME                    READY   STATUS    RESTARTS   AGE     LABELS
+pod/dev                 1/1     Running   0          16m     team=dev
+pod/prafulcloud-clwq7   1/1     Running   0          7m48s   team=dev
+pod/prod                1/1     Running   0          15m     team=prod
+pod/test                1/1     Running   0          15m     team=test
+NAME                          DESIRED   CURRENT   READY   AGE     LABELS
+replicaset.apps/prafulcloud   3         3         3       7m49s   <none>
+
+kubectl delete -f https://raw.githubusercontent.com/prafulpatel16/kube8-techincalcloud/master/Day%2014/replicaset_web_operator_NotIn.yml
+
+NAME       READY   STATUS        RESTARTS   AGE   LABELS
+pod/prod   0/1     Terminating   0          17m   team=prod
+pod/test   1/1     Running       0          17m   team=test
+
+
+team=test pod cannot delete as its not a part of the replicaset member
+NAME       READY   STATUS    RESTARTS   AGE   LABELS
+pod/test   1/1     Running   0          17m   team=test
+
 
 

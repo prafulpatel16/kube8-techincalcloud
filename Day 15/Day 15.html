@@ -1,0 +1,66 @@
+>Kubernets Deployment strategies
+three types of deployment strategies
+
+1.rolling deployment
+
+2.recreate
+
+3.Canary Deployemt, blue & Green deployment, Red & Balck Deployment
+
+
+
+--------------------------------------------------------------------------
+
+1.rolling deployment strategies
+
+MaxSurge
+Im MaxSurge whatever pod value is being given in new replicaset based on that the pods are being created and at the same time the same number of older pods 
+are being terminated.
+
+
+Max Unavailable: 0 and 1
+Max Unavailable: 1 - it means the number of pods will be become Unavailable first from an existing replicaset
+
+Max Unavailable: 0 - it means the pods will not be terminated first from existing replicaset.
+
+>Use Case: 1
+Max Surge: 2
+Max Unavailable: 0
+
+This will create a new pods first from the new replicaset and then terminate the 2 pods from an existing replicaset
+
+>Use Case: 2
+Max Surge: 2
+Max Unavailable: 1
+
+This will first remove 2 pods from an existing replicaset and then it will create 2 new pods from a new replicaset. so in this Case
+there will be some slight downtime can be experienced by user which is not good.
+
+
+>it can be mentioned % wise as well in Max Surge and Max Unavailable
+
+MAx Surge: 25%
+Max Unavailable: 10%
+
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+2.recreate
+
+This is just re creating an existing pods from terminating an existing pods so there will be some downtime. so in test environment this can be done
+but in prod env this is not a good option.
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------
+3.Canary Deployemt, blue & Green deployment, Red & Balck Deployment
+
+
+
+
+
+
+
+
