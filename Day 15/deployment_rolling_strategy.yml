@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prafulcloud
+  labels:
+    app: nginx
 spec:
   replicas: 4
   selector:
