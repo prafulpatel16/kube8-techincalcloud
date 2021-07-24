@@ -255,16 +255,182 @@ same time while new pods are creating, however if there are heavy deployments th
 but the existing pods can be terminated before which can give a downtime to the end user.
 
 
-Change the nginx:1.7.1 to nginx:1.9.1 which is updating an application
+Change the  deployment version nginx:1.7.1 to nginx:1.9.1 which is updating an application
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prafulcloud
+  labels:
+    app: nginx
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+      metadata:
+        labels:
+          app: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:1.9.1
+          ports:
+            - containerPort: 80
+
+
+
+root@master-node-ubnt:~# kubectl apply -f https://raw.githubusercontent.com/prafulpatel16
+/kube8-techincalcloud/master/Day%2015/deployment_rolling_strategy.yml
+deployment.apps/prafulcloud configured
+
+
+NAME                               READY   STATUS        RESTARTS   AGE   LABELS
+pod/prafulcloud-69c44dfb78-blzp4   1/1     Running       0          8s    app=nginx,pod-templ
+ate-hash=69c44dfb78
+pod/prafulcloud-69c44dfb78-cm6fp   1/1     Running       0          6s    app=nginx,pod-templ
+ate-hash=69c44dfb78
+pod/prafulcloud-69c44dfb78-p77hp   1/1     Running       0          6s    app=nginx,pod-templ
+ate-hash=69c44dfb78
+pod/prafulcloud-69c44dfb78-rzkkz   1/1     Running       0          8s    app=nginx,pod-templ
+ate-hash=69c44dfb78
+pod/prafulcloud-ff49c9b4-6n4tg     0/1     Terminating   1          23h   app=nginx,pod-templ
+ate-hash=ff49c9b4
+pod/prafulcloud-ff49c9b4-nnzzt     0/1     Terminating   1          23h   app=nginx,pod-templ
+ate-hash=ff49c9b4
+pod/prafulcloud-ff49c9b4-qn7k6     0/1     Terminating   1          23h   app=nginx,pod-templ
+ate-hash=ff49c9b4
+pod/prafulcloud-ff49c9b4-tkfcr     0/1     Terminating   1          23h   app=nginx,pod-templ
+ate-hash=ff49c9b4
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE     LABELS
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   3d19h   component=apise
+rver,provider=kubernetes
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE   LABELS
+deployment.apps/prafulcloud   4/4     4            4           23h   app=nginx
+NAME                                     DESIRED   CURRENT   READY   AGE   LABELS
+replicaset.apps/prafulcloud-69c44dfb78   4         4         4       8s    app=nginx,pod-temp
+late-hash=69c44dfb78
+replicaset.apps/prafulcloud-ff49c9b4     0         0         0       23h   app=nginx,pod-temp
+late-hash=ff49c9b4
 
 
 
 
+NAME                               READY   STATUS    RESTARTS   AGE    LABELS
+pod/prafulcloud-69c44dfb78-blzp4   1/1     Running   0          113s   app=nginx,pod-template
+-hash=69c44dfb78
+pod/prafulcloud-69c44dfb78-cm6fp   1/1     Running   0          111s   app=nginx,pod-template
+-hash=69c44dfb78
+pod/prafulcloud-69c44dfb78-p77hp   1/1     Running   0          111s   app=nginx,pod-template
+-hash=69c44dfb78
+pod/prafulcloud-69c44dfb78-rzkkz   1/1     Running   0          113s   app=nginx,pod-template
+-hash=69c44dfb78
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE     LABELS
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   3d19h   component=apise
+rver,provider=kubernetes
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE   LABELS
+deployment.apps/prafulcloud   4/4     4            4           23h   app=nginx
+NAME                                     DESIRED   CURRENT   READY   AGE    LABELS
+replicaset.apps/prafulcloud-69c44dfb78   4         4         4       113s   app=nginx,pod-tem
+plate-hash=69c44dfb78
+replicaset.apps/prafulcloud-ff49c9b4     0         0         0       23h    app=nginx,pod-tem
+plate-hash=ff49c9b4
 
 
+-DEscribe Deployment: observe the new image with nginx:1.9.1 is updated.
+
+root@master-node-ubnt:~# kubectl describe deployment
+Name:                   prafulcloud
+Namespace:              default
+CreationTimestamp:      Fri, 23 Jul 2021 21:32:01 +0000
+Labels:                 app=nginx
+Annotations:            deployment.kubernetes.io/revision: 2
+Selector:               app=nginx
+Replicas:               4 desired | 4 updated | 4 total | 4 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=nginx
+  Containers:
+   nginx:
+    Image:        nginx:1.9.1
+    Port:         80/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   prafulcloud-69c44dfb78 (4/4 replicas created)
+Events:
+  Type    Reason             Age    From                   Message
+  ----    ------             ----   ----                   -------
+
+  -Describe pod: observe the new image with nginx:1.9.1 is updated.
 
 
+  root@master-node-ubnt:~# kubectl describe pod prafulcloud-69c44dfb78-blzp4 
+  Name:         prafulcloud-69c44dfb78-blzp4
+  Namespace:    default
+  Priority:     0
+  Node:         node-2/10.128.0.14
+  Start Time:   Sat, 24 Jul 2021 21:00:26 +0000
+  Labels:       app=nginx
+                pod-template-hash=69c44dfb78
+  Annotations:  <none>
+  Status:       Running
+  IP:           10.36.0.3
+  IPs:
+    IP:           10.36.0.3
+  Controlled By:  ReplicaSet/prafulcloud-69c44dfb78
+  Containers:
+    nginx:
+      Container ID:   docker://fd6d0ded3684746c1cab18ec8a3e7354360d0eef1c84e24bc2ca5a9b0036
+  0cbd
+      Image:          nginx:1.9.1
+      Image ID:       docker-pullable://nginx@sha256:2f68b99bc0d6d25d0c56876b924ec20418544f
+  f28e1fb89a4c27679a40da811b
+      Port:           80/TCP
+      Host Port:      0/TCP
+      State:          Running
 
+- Deploy pod deployment using RollingUpdate strategy MaxSurge and maxUnavailable
+
+In this type of deployment when maxSurge: 1, maxUnavailable: 0, it means first one prod will be created from the new replicaset
+and then one pod will be terminated from an existing replicaset until the desired value of the resplicaset is fulfilled.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prafulcloud
+  labels:
+    app: nginx
+spec:
+  replicas: 4
+  strategy:
+    rollingUpdate:
+       maxSurge: 1
+       maxUnavailable: 0
+    type: rollingUpdate   
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+      metadata:
+        labels:
+          app: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:1.10.1
+          ports:
+            - containerPort: 80
 
 
 
