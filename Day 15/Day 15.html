@@ -417,7 +417,7 @@ spec:
     rollingUpdate:
        maxSurge: 1
        maxUnavailable: 0
-    type: rollingUpdate   
+    type: RollingUpdate   
   selector:
     matchLabels:
       app: nginx
@@ -431,6 +431,11 @@ spec:
           image: nginx:1.10.1
           ports:
             - containerPort: 80
+
+
+kubectl apply -f https://raw.githubusercontent.com/prafulpatel16/kube8-techincalcloud/master/Day%2015/deployment_rollingUpdate_strategy.yml
+
+
 
 
 
