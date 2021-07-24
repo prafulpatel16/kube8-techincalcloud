@@ -57,6 +57,215 @@ but in prod env this is not a good option.
 --------------------------------------------------------------------------------------------------------------------------
 3.Canary Deployemt, blue & Green deployment, Red & Balck Deployment
 
+Pending
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+LAB
+
+1.rolling deployment
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prafulcloud
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+      metadata:
+        labels:
+          team: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:1.7.1
+          ports:
+            - containerPort: 80
+
+
+Deploy rolling deployment
+
+kubectl apply -f https://raw.githubusercontent.com/prafulpatel16/kube8-techincalcloud/master/Day%2015/deployment_rolling_strategy.yml
+
+
+NAME                             READY   STATUS    RESTARTS   AGE   LABELS
+pod/prafulcloud-ff49c9b4-6n4tg   1/1     Running   0          24s   app=nginx,pod-template-hash=ff49c9b4
+pod/prafulcloud-ff49c9b4-nnzzt   1/1     Running   0          24s   app=nginx,pod-template-hash=ff49c9b4
+pod/prafulcloud-ff49c9b4-qn7k6   1/1     Running   0          24s   app=nginx,pod-template-hash=ff49c9b4
+pod/prafulcloud-ff49c9b4-tkfcr   1/1     Running   0          24s   app=nginx,pod-template-hash=ff49c9b4
+NAME                                   DESIRED   CURRENT   READY   AGE   LABELS
+replicaset.apps/prafulcloud-ff49c9b4   4         4         4       24s   app=nginx,pod-template-hash=ff49c9b4
+
+
+-----------------
+root@master-node-ubnt:~# kubectl get all
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/prafulcloud-ff49c9b4-6n4tg   1/1     Running   0          61s
+pod/prafulcloud-ff49c9b4-nnzzt   1/1     Running   0          61s
+pod/prafulcloud-ff49c9b4-qn7k6   1/1     Running   0          61s
+pod/prafulcloud-ff49c9b4-tkfcr   1/1     Running   0          61s
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   2d19h
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/prafulcloud   4/4     4            4           61s
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/prafulcloud-ff49c9b4   4         4         4       61s
+root@master-node-ubnt:~# 
+
+- Describe the deployment - prafulcloud and observe that it has Image:nginx:1.7.1
+
+root@master-node-ubnt:~# kubectl describe deployment prafulcloud
+Name:                   prafulcloud
+Namespace:              default
+CreationTimestamp:      Fri, 23 Jul 2021 21:32:01 +0000
+Labels:                 app=nginx
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=nginx
+Replicas:               4 desired | 4 updated | 4 total | 4 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=nginx
+  Containers:
+   nginx:
+    Image:        nginx:1.7.1
+    Port:         80/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   prafulcloud-ff49c9b4 (4/4 replicas created)
+NewReplicaSet:   prafulcloud-ff49c9b4 (4/4 replicas created)
+Events:          <none>
+
+
+-Describe services
+
+root@master-node-ubnt:~# kubectl describe svc
+Name:              kubernetes
+Namespace:         default
+Labels:            component=apiserver
+                   provider=kubernetes
+Annotations:       <none>
+Selector:          <none>
+Type:              ClusterIP
+IP Family Policy:  SingleStack
+IP Families:       IPv4
+IP:                10.96.0.1
+IPs:               10.96.0.1
+Port:              https  443/TCP
+TargetPort:        6443/TCP
+Endpoints:         10.128.0.10:6443
+Session Affinity:  None
+Events:            <none>
+
+
+-Desribe replicaset
+
+root@master-node-ubnt:~# kubectl describe rs
+Name:           prafulcloud-ff49c9b4
+Namespace:      default
+Selector:       app=nginx,pod-template-hash=ff49c9b4
+Labels:         app=nginx
+                pod-template-hash=ff49c9b4
+Annotations:    deployment.kubernetes.io/desired-replicas: 4
+                deployment.kubernetes.io/max-replicas: 5
+                deployment.kubernetes.io/revision: 1
+Controlled By:  Deployment/prafulcloud
+Replicas:       4 current / 4 desired
+Pods Status:    4 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  app=nginx
+           pod-template-hash=ff49c9b4
+  Containers:
+   nginx:
+    Image:        nginx:1.7.1
+    Port:         80/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Events:           <none>
+
+
+
+- Describe one of the pod frpm deployment and observe all the fields and values
+
+Name:         prafulcloud-ff49c9b4-6n4tg
+Namespace:    default
+Priority:     0
+Node:         node-2/10.128.0.14
+Start Time:   Fri, 23 Jul 2021 21:32:01 +0000
+Labels:       app=nginx
+              pod-template-hash=ff49c9b4
+Annotations:  <none>
+Status:       Running
+IP:           10.36.0.2
+IPs:
+  IP:           10.36.0.2
+Controlled By:  ReplicaSet/prafulcloud-ff49c9b4
+Containers:
+  nginx:
+    Container ID:   docker://a92277c4e80e5cdd0de43bf69c9d1ba05ae06fa50c2d68ff27f5971d45d3316a
+    Image:          nginx:1.7.1
+    Image ID:       docker-pullable://nginx@sha256:7fbe0579e123f3d2b29c9159e9a80547fb72621bb419e52d98c679ddbf1055a1
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 23 Jul 2021 21:32:17 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-875sf (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+  Volumes:
+  kube-api-access-875sf:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--------------------------------------------------------------------------------------------------------------------
+
+Now let's do rolling deployment without defining any StrategyType on deployment which leads to terminate the existing Pods
+same time while new pods are creating, however if there are heavy deployments then it may take few more minutes to deploye new pods
+but the existing pods can be terminated before which can give a downtime to the end user.
+
+
+Change the nginx:1.7.1 to nginx:1.9.1 which is updating an application
+
+
+
+
+
+
+
+
+
+
 
 
 
