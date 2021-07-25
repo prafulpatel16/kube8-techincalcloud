@@ -597,3 +597,113 @@ oud-74f95d5d7b-7qr5q to node-2
   Normal  Created    43m   kubelet            Created container nginx
   Normal  Started    43m   kubelet            Started container nginx
 
+- Deploy 4 new pods first from replicaset
+UseCase 2:
+maxSurge: 4
+maxUnavailable: 0
+
+Objective: Deployt 4 new pods first from new replicaset and then terminate 4 pods from the existing replicaset
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prafulcloud
+  labels:
+    app: nginx
+spec:
+  replicas: 4
+  strategy:
+     type: RollingUpdate
+     rollingUpdate:
+       maxSurge: 4
+       maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+      metadata:
+        labels:
+          app: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:1.11.1
+          ports:
+            - containerPort: 80
+
+
+kubectl apply -f https://raw.githubusercontent.com/prafulpatel16/kube8-techincalcloud/master/Day%2015/deployment_rollingUpdate_strategy.yml
+
+NAME                               READY   STATUS              RESTARTS   AGE   LAB
+ELS
+pod/prafulcloud-74f95d5d7b-wcqlg   1/1     Running             0          62m   app
+=nginx,pod-template-hash=74f95d5d7b
+pod/prafulcloud-c85b9d55-6rxpn     1/1     Running             0          11s   app
+=nginx,pod-template-hash=c85b9d55
+pod/prafulcloud-c85b9d55-8rfwk     1/1     Running             0          9s    app
+=nginx,pod-template-hash=c85b9d55
+pod/prafulcloud-c85b9d55-mw9nd     1/1     Running             0          21s   app
+=nginx,pod-template-hash=c85b9d55
+pod/prafulcloud-c85b9d55-rx5qt     0/1     ContainerCreating   0          7s    app
+=nginx,pod-template-hash=c85b9d55
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE     LABEL
+S
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   3d23h   compo
+nent=apiserver,provider=kubernetes
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE   LABELS
+deployment.apps/prafulcloud   4/4     4            4           27h   app=nginx
+NAME                                     DESIRED   CURRENT   READY   AGE     LABELS
+replicaset.apps/prafulcloud-69c44dfb78   0         0         0       4h14m   app=ng
+inx,pod-template-hash=69c44dfb78
+replicaset.apps/prafulcloud-74f95d5d7b   1         1         1       62m     app=ng
+inx,pod-template-hash=74f95d5d7b
+replicaset.apps/prafulcloud-c85b9d55     4         4         3       21s     app=ng
+inx,pod-template-hash=c85b9d55
+replicaset.apps/prafulcloud-ff49c9b4     0         0         0       27h     app=ng
+inx,pod-template-hash=ff49c9b4
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+UseCase: 3
+Objective: In this case first 2 pods will be unavailable from existing replicaset and then new pods will be become available
+from new replicaset
+maxSurge: 0
+maxUnavailable: 2
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prafulcloud
+  labels:
+    app: nginx
+spec:
+  replicas: 4
+  strategy:
+     type: RollingUpdate
+     rollingUpdate:
+       maxSurge: 0
+       maxUnavailable: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+      metadata:
+        labels:
+          app: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:1.12.1
+          ports:
+            - containerPort: 80
+
+
+
+kubectl apply -f 
+
+
+
+
+
+
