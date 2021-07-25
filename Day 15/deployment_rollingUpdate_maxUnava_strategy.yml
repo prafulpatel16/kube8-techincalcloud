@@ -9,8 +9,8 @@ spec:
   strategy:
      type: RollingUpdate
      rollingUpdate:
-       maxSurge: 0
-       maxUnavailable: 2
+       maxSurge: 25%
+       maxUnavailable: 10%
   selector:
     matchLabels:
       app: nginx
@@ -21,7 +21,7 @@ spec:
       spec:
         containers:
         - name: nginx
-          image: nginx:1.12.1
+          image: nginx:1.13.1
           ports:
             - containerPort: 80
 
