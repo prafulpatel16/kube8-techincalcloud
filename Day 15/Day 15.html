@@ -436,11 +436,164 @@ spec:
 kubectl apply -f https://raw.githubusercontent.com/prafulpatel16/kube8-techincalcloud/master/Day%2015/deployment_rollingUpdate_strategy.yml
 
 
+NAME                               READY   STATUS              RESTARTS   AGE     L
+ABELS
+pod/prafulcloud-69c44dfb78-cm6fp   1/1     Running             1          3h12m   a
+pp=nginx,pod-template-hash=69c44dfb78
+pod/prafulcloud-69c44dfb78-p77hp   1/1     Running             1          3h12m   a
+pp=nginx,pod-template-hash=69c44dfb78
+pod/prafulcloud-69c44dfb78-rzkkz   1/1     Running             1          3h12m   a
+pp=nginx,pod-template-hash=69c44dfb78
+pod/prafulcloud-74f95d5d7b-vpnr6   0/1     ContainerCreating   0          6s      a
+pp=nginx,pod-template-hash=74f95d5d7b
+pod/prafulcloud-74f95d5d7b-wcqlg   1/1     Running             0          14s     a
+pp=nginx,pod-template-hash=74f95d5d7b
+
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE     LABEL
+S
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   3d22h   compo
+nent=apiserver,provider=kubernetes
+
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE   LABELS
+deployment.apps/prafulcloud   4/4     2            4           26h   app=nginx
+
+NAME                                     DESIRED   CURRENT   READY   AGE     LABELS
+replicaset.apps/prafulcloud-69c44dfb78   3         3         3       3h12m   app=ng
+inx,pod-template-hash=69c44dfb78
+replicaset.apps/prafulcloud-74f95d5d7b   2         2         1       14s     app=ng
+inx,pod-template-hash=74f95d5d7b
+replicaset.apps/prafulcloud-ff49c9b4     0         0         0       26h     app=ng
+inx,pod-template-hash=ff49c9b4
 
 
 
+- describe deployment and observe all the fields of replicas and RollingUpdateStrategy
 
+root@master-node-ubnt:~# kubectl describe deployment
+Name:                   prafulcloud
+Namespace:              default
+CreationTimestamp:      Fri, 23 Jul 2021 21:32:01 +0000
+Labels:                 app=nginx
+Annotations:            deployment.kubernetes.io/revision: 3
+Selector:               app=nginx
+Replicas:               4 desired | 4 updated | 4 total | 4 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  0 max unavailable, 1 max surge
+Pod Template:
+  Labels:  app=nginx
+  Containers:
+   nginx:
+    Image:        nginx:1.10.1
+    Port:         80/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   prafulcloud-74f95d5d7b (4/4 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  34m   deployment-controller  Scaled up replica set prafulcloud-74f95d5d7b to 1
+  Normal  ScalingReplicaSet  34m   deployment-controller  Scaled down replica set prafulcloud-69c44dfb78 to 3
+  a set prafulcloud-69c44dfb78 to 3
+  Normal  ScalingReplicaSet  34m   deployment-controller  Scaled up replica 
+set prafulcloud-74f95d5d7b to 2
+  Normal  ScalingReplicaSet  34m   deployment-controller  Scaled down replic
+a set prafulcloud-69c44dfb78 to 2
+  Normal  ScalingReplicaSet  34m   deployment-controller  Scaled up replica 
+set prafulcloud-74f95d5d7b to 3
+  Normal  ScalingReplicaSet  34m   deployment-controller  Scaled down replic
+a set prafulcloud-69c44dfb78 to 1
+  Normal  ScalingReplicaSet  34m   deployment-controller  Scaled up replica 
+set prafulcloud-74f95d5d7b to 4
+  Normal  ScalingReplicaSet  34m   deployment-controller  Scaled down replic
+a set prafulcloud-69c44dfb78 to 0
 
+- Describe pods
 
-
+root@master-node-ubnt:~# kubectl get pods
+NAME                           READY   STATUS    RESTARTS   AGE
+prafulcloud-74f95d5d7b-7qr5q   1/1     Running   0          43m
+prafulcloud-74f95d5d7b-ttdgm   1/1     Running   0          43m
+prafulcloud-74f95d5d7b-vpnr6   1/1     Running   0          43m
+prafulcloud-74f95d5d7b-wcqlg   1/1     Running   0          43m
+root@master-node-ubnt:~# kubectl describe pod prafulcloud-74f95d5d7b-7qr5q 
+Name:         prafulcloud-74f95d5d7b-7qr5q
+Namespace:    default
+Priority:     0
+Node:         node-2/10.128.0.14
+Start Time:   Sun, 25 Jul 2021 00:12:46 +0000
+Labels:       app=nginx
+              pod-template-hash=74f95d5d7b
+Annotations:  <none>
+Status:       Running
+IP:           10.36.0.2
+IPs:
+  IP:           10.36.0.2
+Controlled By:  ReplicaSet/prafulcloud-74f95d5d7b
+Containers:
+  nginx:
+    Container ID:   docker://70515012d59020846fae1fa58e78c9609dea38caf265526836b9fe5
+6a9046f5b
+    Image:          nginx:1.10.1
+    Image ID:       docker-pullable://nginx@sha256:35779791c05d119df4fe476db8f47c0be
+e5943c83eba5656a15fc046db48178b
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Sun, 25 Jul 2021 00:12:47 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-p6p7m (ro)
+Page down
+Image:          nginx:1.10.1
+    Image ID:       docker-pullable://nginx@sha256:35779791c05d119df4fe476db8f47c0be
+e5943c83eba5656a15fc046db48178b
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Sun, 25 Jul 2021 00:12:47 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-p6p7m (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+kube-api-access-p6p7m:
+    Type:                    Projected (a volume that contains injected data from mu
+ltiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 30
+0s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 
+300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  43m   default-scheduler  Successfully assigned default/prafulcl
+oud-74f95d5d7b-7qr5q to node-2
+  Normal  Pulled     43m   kubelet            Container image "nginx:1.10.1" already
+ present on machine
+  Normal  Created    43m   kubelet            Created container nginx
+  Normal  Started    43m   kubelet            Started container nginx
 
