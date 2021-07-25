@@ -700,10 +700,47 @@ spec:
 
 
 
+kubectl apply -f https://raw.githubusercontent.com/prafulpatel16/kube8-techincalcloud/master/Day%2015/deployment_rollingUpdate_maxUnava_strategy.yml
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+UseCase: 4
+Objective: In this case first new 25% pods will be available from new replicaset and then 10% will be become unavailable
+from existing replicaset
+maxSurge: 25%
+maxUnavailable: 10%
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prafulcloud
+  labels:
+    app: nginx
+spec:
+  replicas: 4
+  strategy:
+     type: RollingUpdate
+     rollingUpdate:
+       maxSurge: 25%
+       maxUnavailable: 10%
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+      metadata:
+        labels:
+          app: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:1.13.1
+          ports:
+            - containerPort: 80
+
+
 kubectl apply -f 
 
 
 
-
-
-
+ 
